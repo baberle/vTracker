@@ -1,7 +1,11 @@
-# Tauri + React + Typescript
+# Vacation Tracker
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+A simple program for tracking vacation days over the course of a year.
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+-   [] On new year, provide dialog to confirm carryover days
+-   [] Add ability to sync with Google Sheets
+-   [] Import / Export data from JSON
+-   [] Basic but more complete stats section
+-   [] Configurable warnign period (default is 4 days)
+-   [] Ability to disable carryover days
+-   [] Handle edge cases when changing settings

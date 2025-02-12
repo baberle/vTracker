@@ -1,6 +1,7 @@
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Callout } from "@radix-ui/themes";
-import { typeLabelMap } from "../utilities/mock";
+import { useRecords } from "../utilities/RecordsContext";
+import useStats from "../utilities/useStats";
 
 function daysUntilDate(date: Date): number {
     const today = new Date();
@@ -12,31 +13,58 @@ function isWithinXDays(date: Date, x: number): boolean {
     return daysUntilDate(date) <= x;
 }
 
-// Carryover Warning: {days used} >= {carryover days} by {carryover deadline}
-// Vacation Warning: {remaining days} <= {carryover limit} by {vacation deadline}
-// Floating Holidays Warning: {floating holidays used} == {floating holidays available} by {floating holidays deadline}
-
-function UsageWarning() {
-    const timeUntilDeadline = 5;
-    const warningType = "vacation days";
-
-    // TODO: Will two warning be shown at once?
-    // TODO: Convert to hours to allow for half days
-    const remainingDays = 5;
-    const deadline = new Date("2023-12-31");
-    const isWithinWarningPeriod = isWithinXDays(deadline, remainingDays * 4);
-
-    if (!isWithinWarningPeriod) return null;
-
+function WarningCallout({
+    days,
+    label,
+    active,
+}: {
+    readonly days: number;
+    readonly label: string;
+    readonly active: boolean;
+}) {
+    if (!active) return null;
     return (
         <Callout.Root>
             <Callout.Icon>
                 <InfoCircledIcon />
             </Callout.Icon>
             <Callout.Text>
-                You have {daysUntilDate(deadline)} days to use your remaining {warningType}.
+                You have {days} days to use your remaining {label}.
             </Callout.Text>
         </Callout.Root>
+    );
+}
+
+function UsageWarning() {
+    const { settings } = useRecords();
+    const stats = useStats();
+
+    const yearEndDate = new Date("2025-12-31");
+
+    return (
+        <>
+            <WarningCallout
+                days={daysUntilDate(new Date(settings.carryoverDeadline))}
+                label="floating holidays"
+                active={isWithinXDays(
+                    new Date(settings.carryoverDeadline),
+                    stats.carryover.remaining * 4
+                )}
+            />
+            <WarningCallout
+                days={daysUntilDate(yearEndDate)}
+                label="floating holidays"
+                active={isWithinXDays(yearEndDate, stats.floatingHolidays.remaining * 4)}
+            />
+            <WarningCallout
+                days={daysUntilDate(yearEndDate)}
+                label="vacation days"
+                active={isWithinXDays(
+                    yearEndDate,
+                    Math.min(stats.vacation.remaining - settings.carryoverLimit, 0) * 4
+                )}
+            />
+        </>
     );
 }
 

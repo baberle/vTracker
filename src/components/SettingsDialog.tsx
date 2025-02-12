@@ -1,18 +1,26 @@
 import { GearIcon } from "@radix-ui/react-icons";
 import { Button, Dialog, Flex, IconButton, Text, TextField, Separator } from "@radix-ui/themes";
-
-// Settings
-// - # vacation days
-// - vacation day start date
-// - # floating holidays
-// - # sick days
-// - carrover limit
-// - carryover deadline (disabled if carryover limit is 0)
-// - warning period (default is 4 times the remaining days excluding carryover limit)
-// - Import / Export data from JSON
-// - non-fancy stats section
+import type { Settings } from "../utilities/db";
+import { useRecords } from "../utilities/RecordsContext";
 
 function SettingsDialog() {
+    const { settings, updateSettings } = useRecords();
+
+    function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        const formEntries = Object.fromEntries(data);
+        const newSettings: Settings = {
+            carryoverDays: parseInt(formEntries.carryoverDays as string),
+            carryoverLimit: parseInt(formEntries.carryoverLimit as string),
+            floatingHolidays: parseInt(formEntries.floatingHolidays as string),
+            sickLimit: parseInt(formEntries.sickLimit as string),
+            vacationDays: parseInt(formEntries.vacationDays as string),
+            carryoverDeadline: formEntries.carryoverDeadline as string,
+        };
+        updateSettings(newSettings);
+    }
+
     return (
         <Dialog.Root>
             <Dialog.Trigger>
@@ -21,62 +29,117 @@ function SettingsDialog() {
                 </IconButton>
             </Dialog.Trigger>
 
-            <Dialog.Content maxWidth="450px">
-                <Dialog.Title>Settings</Dialog.Title>
-                <Dialog.Description size="2" mb="4">
-                    Make changes to your profile.
-                </Dialog.Description>
+            <Dialog.Content maxWidth="450px" asChild>
+                <form onSubmit={onSubmit}>
+                    <Dialog.Title>Settings</Dialog.Title>
+                    <Dialog.Description size="2" mb="4">
+                        Configure your vacation tracker
+                    </Dialog.Description>
 
-                <Flex direction="column" gap="3">
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Vacation Days
-                        </Text>
-                        <TextField.Root
-                            type="number"
-                            min={0}
-                            max={365}
-                            defaultValue={15}
-                            placeholder="# of vacation days per year"
-                        />
-                    </label>
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Vacation Year Start
-                        </Text>
-                        <TextField.Root type="date" />
-                    </label>
-                    <Separator />
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Carryover Limit
-                        </Text>
-                        <TextField.Root
-                            type="number"
-                            min={0}
-                            max={365}
-                            defaultValue={5}
-                            placeholder="# days allowed to carry over"
-                        />
-                    </label>
-                    <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                            Carryover Deadline
-                        </Text>
-                        <TextField.Root type="date" />
-                    </label>
-                </Flex>
+                    <Flex direction="column" gap="3">
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Vacation Days
+                            </Text>
+                            <TextField.Root
+                                name="vacationDays"
+                                type="number"
+                                min={0}
+                                max={365}
+                                defaultValue={settings.vacationDays}
+                                placeholder="# of vacation days per year"
+                            />
+                        </label>
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Floating Holidays
+                            </Text>
+                            <TextField.Root
+                                name="floatingHolidays"
+                                type="number"
+                                min={0}
+                                max={365}
+                                defaultValue={settings.floatingHolidays}
+                                placeholder="# of floating holidays per year"
+                            />
+                        </label>
+                        {/* <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Vacation Year Start
+                            </Text>
+                            <TextField.Root
+                                name="yearStart"
+                                type="date"
+                                defaultValue={`${new Date().getFullYear()}-01-01`}
+                                disabled
+                            />
+                        </label> */}
+                        <Separator />
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Carryover Days
+                            </Text>
+                            <TextField.Root
+                                name="carryoverDays"
+                                type="number"
+                                min={0}
+                                max={365}
+                                defaultValue={settings.carryoverDays}
+                                placeholder="carryover days this year"
+                            />
+                        </label>
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Carryover Limit
+                            </Text>
+                            <TextField.Root
+                                name="carryoverLimit"
+                                type="number"
+                                min={0}
+                                max={365}
+                                defaultValue={settings.carryoverLimit}
+                                placeholder="# days allowed to carry over"
+                            />
+                        </label>
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Carryover Deadline
+                            </Text>
+                            <TextField.Root
+                                name="carryoverDeadline"
+                                type="date"
+                                defaultValue={
+                                    new Date(settings.carryoverDeadline).toISOString().split("T")[0]
+                                }
+                            />
+                        </label>
+                        <Separator />
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Sick Days
+                            </Text>
+                            <TextField.Root
+                                name="sickLimit"
+                                type="number"
+                                min={0}
+                                max={365}
+                                defaultValue={settings.sickLimit}
+                                placeholder="# sick days allowed"
+                            />
+                        </label>
+                    </Flex>
 
-                <Flex gap="3" mt="4" justify="end">
-                    <Dialog.Close>
-                        <Button variant="soft" color="gray">
-                            Cancel
-                        </Button>
-                    </Dialog.Close>
-                    <Dialog.Close>
-                        <Button>Save</Button>
-                    </Dialog.Close>
-                </Flex>
+                    <Flex gap="3" mt="4" justify="end">
+                        <Dialog.Close>
+                            <Button variant="soft" color="gray">
+                                Cancel
+                            </Button>
+                        </Dialog.Close>
+                        <Dialog.Close>
+                            <Button type="submit">Save</Button>
+                        </Dialog.Close>
+                    </Flex>
+                </form>
             </Dialog.Content>
         </Dialog.Root>
     );

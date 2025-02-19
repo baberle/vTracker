@@ -3,7 +3,6 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { Record } from "../utilities/mock";
 import { RecordType, typeLabelMap } from "../utilities/mock";
 import { useRecords } from "../utilities/RecordsContext";
-import useStats from "../utilities/useStats";
 
 const hours = {
     8: "Full Day",
@@ -11,8 +10,7 @@ const hours = {
 };
 
 function EditDialog({ record }: { record: Record }) {
-    const { records, updateRecord, deleteRecord } = useRecords();
-    const stats = useStats();
+    const { records, stats, updateRecord, deleteRecord } = useRecords();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -143,8 +141,7 @@ export default EditDialog;
 
 // function EditDialog2({ record }: { record: Record }) {
 //     // TODO: Rescrict vacation type and hours depending on existing vacation used
-//     const { deleteRecord } = useRecords();
-//     const stats = useStats();
+//     const { stats, deleteRecord } = useRecords();
 //     return (
 //         <Dialog.Root>
 //             <Dialog.Trigger>

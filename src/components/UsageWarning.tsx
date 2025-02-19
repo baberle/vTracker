@@ -1,7 +1,6 @@
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Callout } from "@radix-ui/themes";
 import { useRecords } from "../utilities/RecordsContext";
-import useStats from "../utilities/useStats";
 
 function daysUntilDate(date: Date): number {
     const today = new Date();
@@ -36,8 +35,7 @@ function WarningCallout({
 }
 
 function UsageWarning() {
-    const { settings } = useRecords();
-    const stats = useStats();
+    const { settings, stats } = useRecords();
 
     const yearEndDate = new Date("2025-12-31");
 
@@ -45,7 +43,7 @@ function UsageWarning() {
         <>
             <WarningCallout
                 days={daysUntilDate(new Date(settings.carryoverDeadline))}
-                label="floating holidays"
+                label="carryover days"
                 active={isWithinXDays(
                     new Date(settings.carryoverDeadline),
                     stats.carryover.remaining * 4

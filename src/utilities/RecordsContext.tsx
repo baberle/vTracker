@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import {
     addRecord,
     deleteRecord,
@@ -7,12 +7,27 @@ import {
     Settings,
     updateSettings,
     getSettings,
+    RecordType,
 } from "./db";
 import { Record } from "./mock";
+
+interface StatsSection {
+    total: number;
+    used: number;
+    remaining: number;
+}
+
+interface Stats {
+    vacation: StatsSection;
+    sick: StatsSection;
+    carryover: StatsSection;
+    floatingHolidays: StatsSection;
+}
 
 interface RecordsContextProps {
     settings: Settings;
     records: Record[];
+    stats: Stats;
     addRecord: (record: Record) => Promise<void>;
     updateRecord: (date: string, updatedRecord: Partial<Record>) => Promise<void>;
     deleteRecord: (date: string) => Promise<void>;
@@ -73,16 +88,60 @@ export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) =>
         await refreshSettings();
     };
 
-    const contextValue = React.useMemo(
+    const stats = useMemo(() => {
+        const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+        const daysUsed = {
+            [RecordType.Vacation]: 0,
+            [RecordType.Sick]: 0,
+            [RecordType.Leave]: 0,
+            [RecordType.Unpaid]: 0,
+            [RecordType.Holiday]: 0,
+        };
+
+        records.forEach((record) => {
+            if (new Date(record.date) >= startOfYear) {
+                daysUsed[record.type] += record.hours / 8;
+            }
+        });
+
+        return {
+            vacation: {
+                total: settings.vacationDays,
+                used: Math.max(daysUsed[RecordType.Vacation] - settings.carryoverDays, 0),
+                remaining: Math.min(
+                    settings.vacationDays + settings.carryoverDays - daysUsed[RecordType.Vacation],
+                    settings.vacationDays
+                ),
+            },
+            sick: {
+                total: settings.sickLimit,
+                used: daysUsed[RecordType.Sick],
+                remaining: settings.sickLimit - daysUsed[RecordType.Sick],
+            },
+            carryover: {
+                total: settings.carryoverDays,
+                used: Math.min(daysUsed[RecordType.Vacation], settings.carryoverDays),
+                remaining: Math.max(settings.carryoverDays - daysUsed[RecordType.Vacation], 0),
+            },
+            floatingHolidays: {
+                total: settings.floatingHolidays,
+                used: daysUsed[RecordType.Holiday],
+                remaining: settings.floatingHolidays - daysUsed[RecordType.Holiday],
+            },
+        };
+    }, [records, settings]);
+
+    const contextValue = useMemo(
         () => ({
             settings,
             records,
+            stats,
             addRecord: handleAddRecord,
             updateRecord: handleUpdateRecord,
             deleteRecord: handleDeleteRecord,
             updateSettings: handleUpdateSettings,
         }),
-        [settings, records]
+        [settings, records, stats]
     );
 
     return <RecordsContext.Provider value={contextValue}>{children}</RecordsContext.Provider>;

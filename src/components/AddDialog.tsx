@@ -2,7 +2,6 @@ import { Button, Dialog, Flex, Select, Text, TextField } from "@radix-ui/themes"
 import type { Record } from "../utilities/mock";
 import { RecordType, typeLabelMap } from "../utilities/mock";
 import { useRecords } from "../utilities/RecordsContext";
-import useStats from "../utilities/useStats";
 import { getLocalDate } from "../utilities/utils";
 
 const hours = {
@@ -11,8 +10,7 @@ const hours = {
 };
 
 function AddDialog() {
-    const { records, addRecord } = useRecords();
-    const stats = useStats();
+    const { records, stats, addRecord } = useRecords();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

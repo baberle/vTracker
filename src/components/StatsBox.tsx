@@ -1,5 +1,5 @@
 import { Box, Card, Flex, Grid, Text } from "@radix-ui/themes";
-import useStats from "../utilities/useStats";
+import { useRecords } from "../utilities/RecordsContext";
 
 function Stat({
     value,
@@ -27,7 +27,7 @@ function Stat({
 }
 
 function StatsBox() {
-    const stats = useStats();
+    const { stats } = useRecords();
 
     return (
         <Card>

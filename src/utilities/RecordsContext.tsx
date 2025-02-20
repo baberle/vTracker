@@ -32,6 +32,7 @@ interface RecordsContextProps {
     updateRecord: (date: string, updatedRecord: Partial<Record>) => Promise<void>;
     deleteRecord: (date: string) => Promise<void>;
     updateSettings: (settings: Partial<Settings>) => Promise<void>;
+    refresh: () => Promise<void>;
 }
 
 const RecordsContext = createContext<RecordsContextProps | undefined>(undefined);
@@ -62,10 +63,13 @@ export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) =>
         const allSettings = await getSettings();
         setSettings({ ...defaultSettings, ...allSettings });
     };
+    const refresh = async () => {
+        await refreshRecords();
+        await refreshSettings();
+    };
 
     useEffect(() => {
-        refreshRecords();
-        refreshSettings();
+        refresh();
     }, []);
 
     const handleAddRecord = async (record: Record) => {
@@ -140,6 +144,7 @@ export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) =>
             updateRecord: handleUpdateRecord,
             deleteRecord: handleDeleteRecord,
             updateSettings: handleUpdateSettings,
+            refresh,
         }),
         [settings, records, stats]
     );

@@ -1,10 +1,11 @@
-import { GearIcon } from "@radix-ui/react-icons";
+import { DownloadIcon, GearIcon, UploadIcon } from "@radix-ui/react-icons";
 import { Button, Dialog, Flex, IconButton, Text, TextField, Separator } from "@radix-ui/themes";
 import type { Settings } from "../utilities/db";
 import { useRecords } from "../utilities/RecordsContext";
+import { exportToJson, importFromJson } from "../utilities/db";
 
 function SettingsDialog() {
-    const { settings, updateSettings } = useRecords();
+    const { settings, updateSettings, refresh } = useRecords();
 
     function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -127,6 +128,47 @@ function SettingsDialog() {
                                 placeholder="# sick days allowed"
                             />
                         </label>
+                        <Flex gap="3" justify="center" mt="3" mb="1">
+                            <Button
+                                variant="surface"
+                                onClick={() => {
+                                    const input = document.createElement("input");
+                                    input.type = "file";
+                                    input.accept = "application/json";
+                                    input.onchange = async (event) => {
+                                        const file = (event.target as HTMLInputElement).files?.[0];
+                                        if (file) {
+                                            const text = await file.text();
+                                            const importedSettings = JSON.parse(text);
+                                            await importFromJson(importedSettings);
+                                            refresh();
+                                        }
+                                    };
+                                    input.click();
+                                }}
+                            >
+                                <UploadIcon />
+                                Import
+                            </Button>
+                            <Button
+                                variant="surface"
+                                onClick={async () => {
+                                    const json = await exportToJson();
+                                    const blob = new Blob([JSON.stringify(json, null, 2)], {
+                                        type: "application/json",
+                                    });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement("a");
+                                    a.href = url;
+                                    a.download = "vTrackerDB.json";
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                }}
+                            >
+                                <DownloadIcon />
+                                Export
+                            </Button>
+                        </Flex>
                     </Flex>
 
                     <Flex gap="3" mt="4" justify="end">

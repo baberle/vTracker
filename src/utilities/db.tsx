@@ -24,6 +24,15 @@ export interface Settings {
     floatingHolidays: number;
 }
 
+const settingKeys = [
+    "vacationDays",
+    "carryoverLimit",
+    "sickLimit",
+    "carryoverDeadline",
+    "carryoverDays",
+    "floatingHolidays",
+];
+
 const vacationRecords = openDB("vacation-records", 1, {
     upgrade(db) {
         if (!db.objectStoreNames.contains("records")) {
@@ -49,15 +58,7 @@ export async function getSettings(): Promise<Settings> {
     const db = await vacationRecords;
     const tx = db.transaction("settings", "readonly");
     const settings: Partial<Settings> = {};
-    const keys = [
-        "vacationDays",
-        "carryoverLimit",
-        "sickLimit",
-        "carryoverDeadline",
-        "carryoverDays",
-        "floatingHolidays",
-    ];
-    for (const key of keys) {
+    for (const key of settingKeys) {
         const setting = await tx.store.get(key);
         if (setting) {
             settings[key as keyof Settings] = setting.value;
@@ -102,4 +103,57 @@ export async function deleteRecord(date: string): Promise<void> {
     const tx = db.transaction("records", "readwrite");
     await tx.store.delete(date);
     await tx.done;
+}
+
+export async function exportToJson(): Promise<object> {
+    const db = await vacationRecords;
+    const txSettings = db.transaction("settings", "readonly");
+
+    // Export Settings
+    const settings: Partial<Settings> = {};
+    for (const key of settingKeys) {
+        const setting = await txSettings.store.get(key);
+        if (setting) {
+            settings[key as keyof Settings] = setting.value;
+        }
+    }
+    await txSettings.done;
+
+    // Export Records
+    const txRecords = db.transaction("records", "readonly");
+    const records = await txRecords.store.getAll();
+    await txRecords.done;
+
+    return {
+        version: db.version,
+        records,
+        settings,
+    };
+}
+
+export async function importFromJson(data: {
+    version: number;
+    records: Record[];
+    settings: Partial<Settings>;
+}): Promise<void> {
+    const db = await vacationRecords;
+
+    // Check DB version
+    if (data.version !== db.version) {
+        throw new Error(`Database version mismatch: expected ${db.version}, got ${data.version}`);
+    }
+
+    // Import Settings
+    const txSettings = db.transaction("settings", "readwrite");
+    for (const [key, value] of Object.entries(data.settings)) {
+        await txSettings.store.put({ id: key, value });
+    }
+    await txSettings.done;
+
+    // Import Records
+    const txRecords = db.transaction("records", "readwrite");
+    for (const record of data.records) {
+        await txRecords.store.put(record);
+    }
+    await txRecords.done;
 }

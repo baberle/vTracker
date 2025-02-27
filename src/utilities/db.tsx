@@ -22,6 +22,7 @@ export interface Settings {
     carryoverDeadline: string;
     carryoverDays: number;
     floatingHolidays: number;
+    warningPeriod: number;
 }
 
 const settingKeys = [
@@ -31,6 +32,7 @@ const settingKeys = [
     "carryoverDeadline",
     "carryoverDays",
     "floatingHolidays",
+    "warningPeriod",
 ];
 
 const vacationRecords = openDB("vacation-records", 1, {

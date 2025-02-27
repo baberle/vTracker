@@ -1,5 +1,14 @@
 import { DownloadIcon, GearIcon, UploadIcon } from "@radix-ui/react-icons";
-import { Button, Dialog, Flex, IconButton, Text, TextField, Separator } from "@radix-ui/themes";
+import {
+    Button,
+    Dialog,
+    Flex,
+    IconButton,
+    Text,
+    TextField,
+    Separator,
+    Select,
+} from "@radix-ui/themes";
 import type { Settings } from "../utilities/db";
 import { useRecords } from "../utilities/RecordsContext";
 import { exportToJson, importFromJson } from "../utilities/db";
@@ -18,6 +27,7 @@ function SettingsDialog() {
             sickLimit: parseInt(formEntries.sickLimit as string),
             vacationDays: parseInt(formEntries.vacationDays as string),
             carryoverDeadline: formEntries.carryoverDeadline as string,
+            warningPeriod: parseInt(formEntries.warningPeriod as string),
         };
         updateSettings(newSettings);
     }
@@ -127,6 +137,28 @@ function SettingsDialog() {
                                 defaultValue={settings.sickLimit}
                                 placeholder="# sick days allowed"
                             />
+                        </label>
+                        <Separator />
+                        <label>
+                            <Text as="div" size="2" mb="1" weight="bold">
+                                Warning Period
+                            </Text>
+                            <Text as="div" size="1" mb="1" color="gray">
+                                When the number of days left is X times the number of remaining
+                                vacation days
+                            </Text>
+                            <Select.Root
+                                name="warningPeriod"
+                                defaultValue={settings.warningPeriod.toString()}
+                            >
+                                <Select.Trigger style={{ width: "100%" }} />
+                                <Select.Content position="popper">
+                                    <Select.Item value="2">2x</Select.Item>
+                                    <Select.Item value="4">4x</Select.Item>
+                                    <Select.Item value="6">6x</Select.Item>
+                                    <Select.Item value="8">8x</Select.Item>
+                                </Select.Content>
+                            </Select.Root>
                         </label>
                         <Flex gap="3" justify="center" mt="3" mb="1">
                             <Button

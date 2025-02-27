@@ -48,6 +48,7 @@ const defaultSettings = {
     carryoverDeadline: new Date(2025, 2, 31).toISOString().split("T")[0],
     sickLimit: 6,
     floatingHolidays: 2,
+    warningPeriod: 4,
 };
 
 export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) => {

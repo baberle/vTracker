@@ -37,7 +37,8 @@ function WarningCallout({
 function UsageWarning() {
     const { settings, stats } = useRecords();
 
-    const yearEndDate = new Date("2025-12-31");
+    const currentYear = new Date().getFullYear();
+    const yearEndDate = new Date(currentYear, 11, 31);
 
     return (
         <>
@@ -46,20 +47,24 @@ function UsageWarning() {
                 label="carryover days"
                 active={isWithinXDays(
                     new Date(settings.carryoverDeadline),
-                    stats.carryover.remaining * 4
+                    stats.carryover.remaining * settings.warningPeriod
                 )}
             />
             <WarningCallout
                 days={daysUntilDate(yearEndDate)}
                 label="floating holidays"
-                active={isWithinXDays(yearEndDate, stats.floatingHolidays.remaining * 4)}
+                active={isWithinXDays(
+                    yearEndDate,
+                    stats.floatingHolidays.remaining * settings.warningPeriod
+                )}
             />
             <WarningCallout
                 days={daysUntilDate(yearEndDate)}
                 label="vacation days"
                 active={isWithinXDays(
                     yearEndDate,
-                    Math.min(stats.vacation.remaining - settings.carryoverLimit, 0) * 4
+                    Math.min(stats.vacation.remaining - settings.carryoverLimit, 0) *
+                        settings.warningPeriod
                 )}
             />
         </>

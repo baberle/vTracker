@@ -103,20 +103,29 @@ export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) =>
             [RecordType.Holiday]: 0,
         };
 
+        const carryoverDeadline = new Date(settings.carryoverDeadline);
+        let daysUsedBeforeDeadline = 0;
+
         records.forEach((record) => {
-            if (new Date(record.date) >= startOfYear) {
+            const recordDate = new Date(record.date);
+            if (recordDate >= startOfYear) {
                 daysUsed[record.type] += record.hours / 8;
+                if (record.type === RecordType.Vacation && recordDate < carryoverDeadline) {
+                    daysUsedBeforeDeadline += record.hours / 8;
+                }
             }
         });
 
         return {
             vacation: {
                 total: settings.vacationDays,
-                used: Math.max(daysUsed[RecordType.Vacation] - settings.carryoverDays, 0),
-                remaining: Math.min(
-                    settings.vacationDays + settings.carryoverDays - daysUsed[RecordType.Vacation],
-                    settings.vacationDays
-                ),
+                used:
+                    daysUsed[RecordType.Vacation] -
+                    Math.min(daysUsedBeforeDeadline, settings.carryoverDays),
+                remaining:
+                    settings.vacationDays -
+                    daysUsed[RecordType.Vacation] +
+                    Math.min(daysUsedBeforeDeadline, settings.carryoverDays),
             },
             sick: {
                 total: settings.sickLimit,
@@ -125,8 +134,8 @@ export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) =>
             },
             carryover: {
                 total: settings.carryoverDays,
-                used: Math.min(daysUsed[RecordType.Vacation], settings.carryoverDays),
-                remaining: Math.max(settings.carryoverDays - daysUsed[RecordType.Vacation], 0),
+                used: Math.min(daysUsedBeforeDeadline, settings.carryoverDays),
+                remaining: Math.max(settings.carryoverDays - daysUsedBeforeDeadline, 0),
             },
             floatingHolidays: {
                 total: settings.floatingHolidays,

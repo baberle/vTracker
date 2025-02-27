@@ -51,7 +51,7 @@ function RecordTable() {
             <Table.Root variant="surface">
                 <Table.Header>
                     <Table.Row>
-                        <Table.ColumnHeaderCell>Passed</Table.ColumnHeaderCell>
+                        <Table.ColumnHeaderCell>Status</Table.ColumnHeaderCell>
                         <Table.ColumnHeaderCell>Date</Table.ColumnHeaderCell>
                         <Table.ColumnHeaderCell>Label</Table.ColumnHeaderCell>
                         <Table.ColumnHeaderCell>Type</Table.ColumnHeaderCell>

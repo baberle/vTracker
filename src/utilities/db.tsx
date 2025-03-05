@@ -145,6 +145,15 @@ export async function importFromJson(data: {
         throw new Error(`Database version mismatch: expected ${db.version}, got ${data.version}`);
     }
 
+    // Clear current database
+    const txClearSettings = db.transaction("settings", "readwrite");
+    await txClearSettings.store.clear();
+    await txClearSettings.done;
+
+    const txClearRecords = db.transaction("records", "readwrite");
+    await txClearRecords.store.clear();
+    await txClearRecords.done;
+
     // Import Settings
     const txSettings = db.transaction("settings", "readwrite");
     for (const [key, value] of Object.entries(data.settings)) {

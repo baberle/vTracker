@@ -35,7 +35,7 @@ function RecordTable() {
     const { records } = useRecords();
 
     const tableRows = records
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .map((record) => <RecordRow key={record.date} record={record} />);
 
     return (

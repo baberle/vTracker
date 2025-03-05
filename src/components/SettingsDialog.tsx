@@ -9,6 +9,7 @@ import {
     Separator,
     Select,
 } from "@radix-ui/themes";
+import ImportAlert from "./ImportAlert";
 import type { Settings } from "../utilities/db";
 import { useRecords } from "../utilities/RecordsContext";
 import { exportToJson, importFromJson } from "../utilities/db";
@@ -161,9 +162,14 @@ function SettingsDialog() {
                             </Select.Root>
                         </label>
                         <Flex gap="3" justify="center" mt="3" mb="1">
-                            <Button
-                                variant="surface"
-                                onClick={() => {
+                            <ImportAlert
+                                button={
+                                    <Button variant="surface">
+                                        <UploadIcon />
+                                        Import
+                                    </Button>
+                                }
+                                onAction={() => {
                                     const input = document.createElement("input");
                                     input.type = "file";
                                     input.accept = "application/json";
@@ -178,10 +184,7 @@ function SettingsDialog() {
                                     };
                                     input.click();
                                 }}
-                            >
-                                <UploadIcon />
-                                Import
-                            </Button>
+                            />
                             <Button
                                 variant="surface"
                                 onClick={async () => {

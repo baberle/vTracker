@@ -12,7 +12,7 @@ function isWithinXDays(date: Date, x: number): boolean {
     return daysUntilDate(date) <= x;
 }
 
-function WarningCallout({
+export function WarningCallout({
     days,
     label,
     active,

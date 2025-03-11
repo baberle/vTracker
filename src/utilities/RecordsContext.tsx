@@ -45,7 +45,7 @@ const defaultSettings = {
     vacationDays: 15,
     carryoverLimit: 5,
     carryoverDays: 5,
-    carryoverDeadline: new Date(2025, 2, 31).toISOString().split("T")[0],
+    carryoverDeadline: new Date(new Date().getFullYear(), 2, 31).toISOString().split("T")[0],
     sickLimit: 6,
     floatingHolidays: 2,
     warningPeriod: 4,
@@ -106,6 +106,7 @@ export const RecordsProvider: React.FC<RecordsProviderProps> = ({ children }) =>
         const carryoverDeadline = new Date(settings.carryoverDeadline);
         let daysUsedBeforeDeadline = 0;
 
+        // TODO: Test here
         records.forEach((record) => {
             const recordDate = new Date(record.date);
             if (recordDate >= startOfYear) {

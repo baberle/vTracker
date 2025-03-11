@@ -81,8 +81,14 @@ export async function addRecord(record: Record): Promise<void> {
 export async function getRecords(): Promise<Record[]> {
     const db = await vacationRecords;
     const tx = db.transaction("records", "readonly");
-    const records = await tx.store.getAll();
+    const allRecords = await tx.store.getAll();
     await tx.done;
+
+    const currentYear = new Date().getFullYear();
+    const records = allRecords.filter(
+        (record) => new Date(record.date).getFullYear() === currentYear
+    );
+
     return records;
 }
 

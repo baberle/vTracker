@@ -6,16 +6,24 @@ import AddDialog from "./AddDialog";
 import EditDialog from "./EditDialog";
 
 function RecordRow({ record }: { record: Record }) {
+    const [year, month, day] = record.date.split("-").map(Number);
+    const recordDate = new Date(year, month - 1, day);
+
+    console.log({
+        recordDate: record.date,
+        date: new Date(record.date),
+    });
+
     return (
         <Table.Row>
             <Table.RowHeaderCell>
-                <Badge color={new Date(record.date) > new Date() ? "gray" : "green"}>
-                    {new Date(record.date) > new Date() ? "Planned" : "Used"}
+                <Badge color={recordDate > new Date() ? "gray" : "green"}>
+                    {recordDate > new Date() ? "Planned" : "Used"}
                 </Badge>
             </Table.RowHeaderCell>
             <Table.Cell>
                 <Code variant="ghost">
-                    {new Date(record.date).toLocaleDateString("en-US", {
+                    {recordDate.toLocaleDateString("en-US", {
                         weekday: "short",
                         month: "short",
                         day: "2-digit",
